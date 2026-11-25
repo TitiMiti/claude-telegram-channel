@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.1 — 2026-11-25
+
+### Changed
+- The "Thinking…" draft (`thinkingDraft`) is now **off by default**: drafts showed up
+  late and unevenly. Opt in with `"thinkingDraft": true` in `access.json`.
+- Voice: audio is sent to SpeechKit with `x-data-logging-enabled: false` (asks Yandex
+  not to keep it for service improvement). `YANDEX_DATA_LOGGING=1` turns that off.
+
 ## 0.1.0 — 2026-11-25
 
 First fork release on top of upstream v0.0.7.

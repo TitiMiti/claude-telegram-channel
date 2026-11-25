@@ -250,7 +250,7 @@ export function registerInbound(deps: InboundDeps): void {
     // Typing indicator — signals "processing" until we reply (or ~5s elapses).
     void bot.api.sendChatAction(chat_id, 'typing', threadOpt).catch(() => {})
     // In DMs, the animated "Thinking…" draft lasts until the reply instead.
-    if (access.thinkingDraft !== false) deps.drafts.thinking(chat_id, threadId)
+    if (access.thinkingDraft === true) deps.drafts.thinking(chat_id, threadId)
 
     // Ack reaction — lets the user know we're processing. Fire-and-forget.
     // Telegram only accepts a fixed emoji whitelist — if the user configures

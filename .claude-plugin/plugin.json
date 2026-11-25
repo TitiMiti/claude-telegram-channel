@@ -1,7 +1,7 @@
 {
   "name": "telegram",
   "description": "Telegram channel for Claude Code \u2014 messaging bridge with built-in access control, voice transcription (Yandex SpeechKit), live drafts, and an optional manager that runs one session per Telegram topic. Manage pairing, allowlists, and policy via /telegram:access.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "keywords": [
     "telegram",
     "messaging",

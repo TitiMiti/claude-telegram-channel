@@ -111,7 +111,7 @@ describe.skipIf(!hasTmux)('manager e2e (fake Bot API + fake claude in tmux)', ()
     server = fakeBotApi()
     stateDir = mkdtempSync(join(tmpdir(), 'tgm-'))
     ws = join(stateDir, 'ws')
-    writeFileSync(join(stateDir, 'access.json'), JSON.stringify({ dmPolicy: 'allowlist', allowFrom: [String(OWNER)], groups: {}, pending: {} }))
+    writeFileSync(join(stateDir, 'access.json'), JSON.stringify({ dmPolicy: 'allowlist', allowFrom: [String(OWNER)], groups: {}, pending: {}, thinkingDraft: true }))
     writeFileSync(join(stateDir, 'manager.json'), JSON.stringify({
       workspaceRoot: ws,
       claudeCommand: process.execPath,

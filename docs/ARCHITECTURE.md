@@ -172,7 +172,7 @@ servers. A channel only sees finished tool calls — `reply` arrives with the
 whole text at once. Token-by-token streaming of Claude's answer is therefore
 not possible from a channel. What we do instead:
 
-1. **Thinking draft** (`thinkingDraft`, default on). As soon as a message is
+1. **Thinking draft** (`thinkingDraft`, default off). As soon as a message is
    delivered, the chat shows Telegram's "Thinking…" placeholder (draft with
    empty text) in the right topic, refreshed every 20 s until Claude replies
    (max 10 min). It replaces the 5-second typing indicator. In manager mode

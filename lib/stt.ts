@@ -47,6 +47,8 @@ export async function transcribe(audio: Uint8Array, opts: SttOptions): Promise<s
   const headers = {
     Authorization: `Api-Key ${opts.apiKey}`,
     'Content-Type': 'application/json',
+    // Ask Yandex not to keep the audio/text for service improvement. Opt back in with YANDEX_DATA_LOGGING=1.
+    ...(process.env.YANDEX_DATA_LOGGING === '1' ? {} : { 'x-data-logging-enabled': 'false' }),
   }
 
   async function call(method: string, url: string, body?: unknown): Promise<string> {

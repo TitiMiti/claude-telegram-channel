@@ -33,6 +33,78 @@ Both use the same `access.json`, pairing and allowlist. Don't run both on one
 bot token at the same time — Telegram allows a single poller (a plugin session
 started while the manager runs goes idle by itself).
 
+## Installation, step by step
+
+You need a Linux/macOS machine that stays on (a VPS is fine), [Bun](https://bun.sh),
+`tmux`, `ffmpeg`, and [Claude Code](https://code.claude.com) (2.1.80+) logged in
+(claude.ai subscription or Console API key; channels are a research preview).
+
+1. **Create a bot** in [@BotFather](https://t.me/BotFather) (`/newbot`), copy the token.
+   For topics: Bot Settings → Topics (Threaded Mode) → on.
+2. **Install**
+   ```sh
+   git clone https://github.com/TitiMiti/claude-telegram-channel ~/claude-telegram-channel
+   cd ~/claude-telegram-channel && bun install
+   ```
+3. **Put your secrets in `~/.claude/channels/telegram/.env`** (create the folder, `chmod 700` it and `chmod 600` the file):
+   ```sh
+   TELEGRAM_BOT_TOKEN=123456789:AAH...
+   YANDEX_API_KEY=AQVN...          # optional, only for voice
+   ```
+4. **Get a Yandex SpeechKit key (for voice; skip it and voice notes just arrive untranscribed).**
+   In [Yandex Cloud](https://console.yandex.cloud): create a billing account and a folder →
+   Service accounts → create one (e.g. `tg-stt`) → open it → *Create new key* → **API key**,
+   scope **`yc.ai.speechkitStt.execute`** (nothing else) → copy the key once (`AQVN...`).
+   If your account asks for a role, grant `ai.speechkit-stt.user` on the folder (*Folder → Access bindings*).
+   SpeechKit is billed per minute of audio; set a budget alert in the console.
+5. **Allow yourself.** Write your numeric Telegram ID (ask [@userinfobot](https://t.me/userinfobot))
+   into `~/.claude/channels/telegram/access.json`:
+   ```json
+   { "dmPolicy": "allowlist", "allowFrom": ["123456789"], "groups": {}, "pending": {} }
+   ```
+   (Or leave `dmPolicy: "pairing"` and approve the code the bot sends with `/telegram:access pair <code>`.)
+6. **Run the topic manager** (one session per topic):
+   ```sh
+   bun manager.ts            # or the systemd unit in contrib/
+   ```
+   Then message the bot. `/new Website` makes a topic with its own Claude session.
+   Sessions run in tmux (`tmux -L claude-telegram ls`); the first start in a new
+   folder may need you to confirm "trust this folder" — the bot tells you how.
+
+   Prefer a single session without topics? See *Quick Setup (single session)* below.
+
+`manager.json` options (e.g. `claudeArgs`, workspace folder) are described in
+*Topic manager* below. By default sessions get `--dangerously-skip-permissions`
+only if you put it in `claudeArgs`: **decide that consciously**, see *Privacy and security*.
+
+## Privacy and security
+
+Read this before you point the bot at anything private.
+
+- **Voice goes to a third party.** Every voice note or audio file from an allowlisted
+  user is sent to Yandex Cloud SpeechKit and the transcript comes back. There is no
+  end-to-end protection beyond HTTPS to Yandex's servers: Yandex receives the audio
+  and the text. We do three things to limit it: only allowlisted senders are
+  transcribed, the result is deleted on Yandex's side right after (`deleteRecognition`),
+  and the request carries `x-data-logging-enabled: false` (asks Yandex not to keep
+  the data for service improvement; whether that is honored is Yandex's side, not
+  verifiable here). Don't dictate secrets. No key → nothing is sent anywhere.
+- **Telegram itself.** Bot chats are not end-to-end encrypted: Telegram sees all
+  messages, files and voice notes. Your replies from Claude pass through it too.
+- **The bot is remote control of your machine.** Anyone who can message it (and
+  anyone who gets into your Telegram account) can make Claude run commands as your
+  user. Keep `dmPolicy` on `allowlist`/`pairing`, don't add groups casually, and run
+  it as a separate OS user or in a container, not as your main account.
+- **Prompt injection.** Text and files that reach Claude (messages, forwarded content,
+  web pages it reads) can try to steer it. With `--dangerously-skip-permissions` nothing
+  asks for confirmation. Use that only on a disposable machine with nothing valuable
+  (no ssh keys to production, no cloud tokens, no payment access).
+- **Secrets on disk.** The bot token and `YANDEX_API_KEY` live in `.env` (0600) in the state
+  dir, never in the environment of Claude sessions and never logged. Use a Yandex key
+  scoped to speech recognition only and set a spending limit.
+- **Costs.** Claude usage (subscription limits or API tokens) and SpeechKit minutes are
+  yours to watch; a runaway session can burn through them.
+
 ## Prerequisites
 
 - [Bun](https://bun.sh) — the MCP server runs on Bun. Install with `curl -fsSL https://bun.sh/install | bash`.
@@ -173,9 +245,10 @@ Quick reference: IDs are **numeric user IDs** (get yours from [@userinfobot](htt
 | `edit_message` | Edit a message the bot previously sent. Useful for "working…" → result progress updates. Only works on the bot's own messages. |
 | `download_attachment` | Fetch a file the user sent (documents, original voice/audio, video) into the inbox and return its path. |
 
-Inbound messages trigger a typing indicator and, in DMs, Telegram's animated
-"Thinking…" draft that stays until the reply (`thinkingDraft`, see ACCESS.md).
-In topic sessions the draft has a stop button that interrupts Claude.
+Inbound messages trigger a typing indicator. Optionally (`thinkingDraft: true`, see
+ACCESS.md) DMs also get Telegram's animated "Thinking…" draft until the reply; in
+topic sessions that draft has a stop button that interrupts Claude. Off by default:
+in practice drafts appear with delays and unevenly.
 
 ## Voice
 
