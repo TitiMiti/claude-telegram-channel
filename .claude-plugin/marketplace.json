@@ -1,0 +1,14 @@
+{
+  "name": "titimiti-telegram",
+  "description": "Fork of the official Claude Code Telegram channel with topics (one session per topic), built-in Yandex SpeechKit voice and reply streaming",
+  "owner": { "name": "TitiMiti" },
+  "plugins": [
+    {
+      "name": "telegram",
+      "source": "./",
+      "description": "Telegram channel for Claude Code: per-topic sessions, voice transcription, streaming replies",
+      "version": "0.1.0",
+      "license": "Apache-2.0"
+    }
+  ]
+}

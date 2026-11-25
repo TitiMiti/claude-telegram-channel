@@ -1,0 +1,3 @@
+claude-telegram-channel
+Based on the Telegram channel plugin from https://github.com/anthropics/claude-plugins-official
+(external_plugins/telegram), Apache License 2.0. Modifications by TitiMiti, 2026.
