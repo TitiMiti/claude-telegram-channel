@@ -1,0 +1,33 @@
+# systemd user unit for the topic manager.
+#   cp contrib/claude-telegram-manager.service ~/.config/systemd/user/
+#   (edit WorkingDirectory / PATH / HOME below)
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now claude-telegram-manager
+#   journalctl --user -u claude-telegram-manager -f
+#
+# Don't run it next to another poller of the same bot token (e.g. a
+# `claude --channels plugin:telegram@…` session): Telegram allows one.
+
+[Unit]
+Description=Claude Code Telegram topic manager
+After=network-online.target
+
+[Service]
+# Checkout of this repo (run `bun install` there once).
+WorkingDirectory=%h/claude-telegram-channel
+# Sessions inherit this. HOME decides which Claude Code login/config they use;
+# PATH must find bun, claude and tmux.
+Environment=HOME=%h
+Environment=PATH=%h/.bun/bin:%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+# Token and YANDEX_API_KEY are read from ~/.claude/channels/telegram/.env
+# (or TELEGRAM_STATE_DIR/.env); an EnvironmentFile= works too.
+ExecStart=/usr/bin/env bun manager.ts
+Restart=always
+RestartSec=5
+# Only stop the manager itself: the tmux server with the Claude sessions is
+# in this unit's cgroup and would otherwise be killed on every restart.
+# Stop all sessions explicitly with: tmux -L claude-telegram kill-server
+KillMode=process
+
+[Install]
+WantedBy=default.target

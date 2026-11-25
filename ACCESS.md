@@ -92,6 +92,10 @@ Configure outbound behavior with `/telegram:access set <key> <value>`.
 
 **`chunkMode`** chooses the split strategy: `length` cuts exactly at the limit; `newline` prefers paragraph boundaries.
 
+**`thinkingDraft`** (fork, default `true`) shows Telegram's animated "Thinking…" draft in DMs from the moment a message is delivered until Claude replies (refreshed in the background, up to 10 minutes). Uses `sendMessageDraft` (Bot API 9.5+); groups keep the plain typing indicator. `false` turns it off.
+
+**`streamReplies`** (fork, default `false`) plays replies of 400+ characters into the draft in a few word-boundary steps (~1.5 s) before sending them. Purely cosmetic — the text is already complete when Claude calls `reply` — so it is off by default. See [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md#streaming) for what "streaming" can and cannot mean for a channel.
+
 ## Skill reference
 
 | Command | Effect |
@@ -104,7 +108,7 @@ Configure outbound behavior with `/telegram:access set <key> <value>`.
 | `/telegram:access policy allowlist` | Set `dmPolicy`. Values: `pairing`, `allowlist`, `disabled`. |
 | `/telegram:access group add -1001654782309` | Enable a group. Flags: `--no-mention` (also requires disabling privacy mode), `--allow id1,id2`. |
 | `/telegram:access group rm -1001654782309` | Disable a group. |
-| `/telegram:access set ackReaction 👀` | Set a config key: `ackReaction`, `replyToMode`, `textChunkLimit`, `chunkMode`, `mentionPatterns`. |
+| `/telegram:access set ackReaction 👀` | Set a config key: `ackReaction`, `replyToMode`, `textChunkLimit`, `chunkMode`, `mentionPatterns`, `thinkingDraft`, `streamReplies`. |
 
 ## Config file
 
@@ -142,6 +146,12 @@ Configure outbound behavior with `/telegram:access set <key> <value>`.
   "textChunkLimit": 4096,
 
   // length = cut at limit. newline = prefer paragraph boundaries.
-  "chunkMode": "newline"
+  "chunkMode": "newline",
+
+  // Fork: animated "Thinking…" draft in DMs while Claude works.
+  "thinkingDraft": true,
+
+  // Fork: play long replies into the draft before sending (cosmetic).
+  "streamReplies": false
 }
 ```

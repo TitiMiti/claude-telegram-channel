@@ -40,13 +40,19 @@ Read both state files and give the user a complete picture:
    `TELEGRAM_BOT_TOKEN`. Show set/not-set; if set, show first 10 chars masked
    (`123456789:...`).
 
-2. **Access** — read `<state-dir>/access.json` (missing file
+2. **Voice** — check `<state-dir>/.env` (and the environment) for
+   `YANDEX_API_KEY`. Show only set/not-set — never any part of the value.
+   Not set → voice messages arrive untranscribed; the user can add
+   `YANDEX_API_KEY=...` to `.env` by hand (a Yandex Cloud service-account key
+   with the `yc.ai.speechkitStt.execute` scope).
+
+3. **Access** — read `<state-dir>/access.json` (missing file
    = defaults: `dmPolicy: "pairing"`, empty allowlist). Show:
    - DM policy and what it means in one line
    - Allowed senders: count, and list display names or IDs
    - Pending pairings: count, with codes and display names if any
 
-3. **What next** — end with a concrete next step based on state:
+4. **What next** — end with a concrete next step based on state:
    - No token → *"Run `/telegram:configure <token>` with the token from
      BotFather."*
    - Token set, policy is pairing, nobody allowed → *"DM your bot on

@@ -1,0 +1,12 @@
+{
+  "workspaceRoot": "~/workspace",
+  "claudeCommand": "claude",
+  "claudeArgs": ["--dangerously-skip-permissions"],
+  "channel": "server",
+  "autoConfirmDevChannels": true,
+  "autoCreateSessions": true,
+  "mainSession": true,
+  "tmuxSocket": "claude-telegram",
+  "sessionEnv": {},
+  "queueLimit": 50
+}

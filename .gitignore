@@ -2,3 +2,4 @@ node_modules/
 .in_use
 .env
 *.log
+.context/
