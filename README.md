@@ -107,6 +107,63 @@ Read this before you point the bot at anything private.
 - **Costs.** Claude usage (subscription limits or API tokens) and SpeechKit minutes are
   yours to watch; a runaway session can burn through them.
 
+## Optional extras
+
+### Telegram skills (recommended)
+
+[serejaris/telegram-skills](https://github.com/serejaris/telegram-skills) (MIT) is a set of
+Agent Skills that teach Claude the Telegram Bot API: rich messages and tables, streaming
+replies, widgets, polls, Stars payments, Mini Apps, bot operations and a map of what a bot
+can and cannot do. They are plain instructions (no hooks, no MCP servers; the helper
+scripts only call `api.telegram.org`), and they are what Claude needs to use newer Bot API
+features correctly. Install in the same Claude Code profile the sessions use:
+
+```
+/plugin marketplace add serejaris/telegram-skills
+/plugin install telegram-skills@telegram-skills
+```
+
+(or `npx skills add serejaris/telegram-skills`). Sessions started by the topic manager use the
+profile of the user/`HOME` the manager runs under, so install them there. The skills call the
+Bot API directly with the bot token, so give the session `TELEGRAM_BOT_TOKEN` in its
+`CLAUDE.md`/environment only if you accept that (this plugin deliberately keeps the token
+out of sessions). Review any third-party skill before installing. Note: widgets (`sendWidget`)
+are rolled out gradually and may be refused for your bot.
+
+### Read all your chats (user account, not a bot)
+
+A bot only sees messages sent to it: no history, no search, no other chats. To let Claude
+read your whole Telegram (any chat, group or channel you see in the app, with history and
+search) you need a **user-account** client over MTProto, not the Bot API. The usual way is a
+Telethon-based MCP server added to the same Claude Code profile, for example
+[chigwell/telegram-mcp](https://github.com/chigwell/telegram-mcp) (read-only mode and per-tool
+switches), [jgalea/telegram-mcp](https://github.com/jgalea/telegram-mcp) (cached searchable
+history), [Powellga/telegram-claude-link](https://github.com/Powellga/telegram-claude-link) or
+[firepol-ai/telegram-mcp](https://github.com/firepol-ai/telegram-mcp) (hardened, read-only
+option). Rough setup (we did not test these ourselves; follow each project's README):
+
+1. Get `api_id` and `api_hash` at [my.telegram.org](https://my.telegram.org) → API development tools.
+2. Install the server (on the same VPS) and log in once with your phone number, code and 2FA
+   password; it stores a session string/file. Keep it `chmod 600`.
+3. Register it: `claude mcp add ...` (see the project's README) in the profile your sessions use.
+4. Prefer a **read-only** mode unless you really want Claude to write as you.
+
+Know what you are giving away: the session is **full access to your account** (all chats,
+secret-chat metadata excluded, contacts, sending messages as you). Anyone who gets the session
+file or controls the Claude session can read everything and write in your name; a
+prompt-injected message in any chat can try to steer the agent. Automating a user account is a
+grey area in Telegram's terms: abuse (spam, mass actions) can get the account limited or banned.
+Use it only for your own account, read-only when possible, and never on a shared machine.
+
+## Run it on a VPS, not on your computer
+
+The bot only works while the process runs. On a laptop it stops when the computer sleeps,
+reboots or goes offline, and messages sent meanwhile are lost (Bot API keeps updates for a
+limited time and Claude cannot read history). A small always-on VPS with the manager as a
+systemd user unit (`loginctl enable-linger <user>` so it survives logouts and reboots) keeps the
+bot answering 24/7. Use a separate OS user or container, because the sessions can run commands
+on that machine.
+
 ## Prerequisites
 
 - [Bun](https://bun.sh) — the MCP server runs on Bun. Install with `curl -fsSL https://bun.sh/install | bash`.
