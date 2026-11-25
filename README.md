@@ -125,6 +125,32 @@ Read this before you point the bot at anything private.
 | `TELEGRAM_WORKSPACE_ROOT` | manager | Overrides `workspaceRoot`. |
 | `TELEGRAM_API_ROOT` | both | Bot API base URL (self-hosted Bot API server). Default `https://api.telegram.org`. |
 
+### Install as a Claude Code plugin (single session, no topics)
+
+If you don't need the topic manager, install the fork as a regular plugin from this repo's marketplace:
+
+```
+/plugin marketplace add TitiMiti/claude-telegram-channel
+/plugin install telegram@titimiti-telegram
+```
+
+(or from a shell: `claude plugin marketplace add TitiMiti/claude-telegram-channel` and
+`claude plugin install telegram@titimiti-telegram --scope user`). Then put the token in
+`~/.claude/channels/telegram/.env` and your ID in `access.json` (steps 3 and 5 above) and start:
+
+```sh
+claude --dangerously-load-development-channels plugin:telegram@titimiti-telegram
+```
+
+The flag is needed because this fork is not on Anthropic's channel allowlist; Claude Code
+asks to confirm on every start (on Team/Enterprise an admin can add the plugin to
+`allowedChannelPlugins`). The topic manager does **not** need the plugin installed: it
+loads the channel itself with `--mcp-config`.
+
+**Do not enable the official `telegram@claude-plugins-official` at the same time**: both are
+named `telegram` and both poll the bot, which gives `409 Conflict` and dropped messages.
+Disable it with `claude plugin disable telegram@claude-plugins-official`.
+
 ## Quick Setup (single session)
 > Default pairing flow for a single-user DM bot. See [ACCESS.md](./ACCESS.md) for groups and multi-user setups.
 

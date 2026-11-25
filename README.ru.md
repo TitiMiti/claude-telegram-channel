@@ -103,6 +103,32 @@ journalctl --user -u claude-telegram-manager -f
 
 Напишите боту. Первая сессия поднимется за 10–20 секунд.
 
+### Установка как плагина Claude Code (одна сессия, без тем)
+
+Если менеджер тем не нужен, поставьте форк как обычный плагин из маркетплейса этого репозитория:
+
+```
+/plugin marketplace add TitiMiti/claude-telegram-channel
+/plugin install telegram@titimiti-telegram
+```
+
+Из терминала то же: `claude plugin marketplace add TitiMiti/claude-telegram-channel` и
+`claude plugin install telegram@titimiti-telegram --scope user`. Затем положите токен в
+`~/.claude/channels/telegram/.env`, а свой ID в `access.json` (шаги 3 и 5 выше) и запустите:
+
+```sh
+claude --dangerously-load-development-channels plugin:telegram@titimiti-telegram
+```
+
+Флаг нужен, потому что форк не входит в список разрешённых каналов Anthropic: Claude Code
+просит подтверждение при каждом старте (на Team и Enterprise администратор может добавить
+плагин в `allowedChannelPlugins`). Менеджеру тем установка плагина **не нужна**: он сам
+подключает канал через `--mcp-config`.
+
+**Не включайте одновременно официальный `telegram@claude-plugins-official`**: у обоих имя
+`telegram`, и оба читают бота, из-за чего возникает `409 Conflict` и теряются сообщения.
+Отключить: `claude plugin disable telegram@claude-plugins-official`.
+
 ## Как пользоваться
 
 | Команда в Telegram | Что делает |
